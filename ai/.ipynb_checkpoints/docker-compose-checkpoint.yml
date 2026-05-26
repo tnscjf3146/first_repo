@@ -1,0 +1,36 @@
+# docker-compose.yml — CH3~5 실습 환경
+# 실행: docker compose up --build
+
+services:
+  lab:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ch3-5-lab:latest
+    container_name: Ai-project
+    ports:
+      - "8888:8888"
+    volumes:
+      # 현재 폴더(실습 자료)를 /workspace로 마운트
+      - .:/workspace
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    shm_size: "4g"
+    environment:
+      PYTHONUNBUFFERED: "1"
+      TZ: Asia/Seoul
+      JUPYTER_TOKEN: Ghkdtnscjf!1
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+      UNSLOTH_ENABLE_CCE: "0"
+      TORCHDYNAMO_DISABLE: "1"
+      HF_HOME: /workspace/.cache/huggingface # 재시작이 발생해도 모델을 다운로드 없이 바로 사용할 수 있음
+    # GPU 설정 — GPU가 없어도 에러 없이 CPU로 실행됨
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
